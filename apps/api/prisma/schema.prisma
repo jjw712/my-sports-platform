@@ -1,0 +1,44 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+model Post {
+  id           Int            @id @default(autoincrement())
+  title        String
+  content      String
+  createdAt    DateTime       @default(now())
+  dislikeCount Int            @default(0)
+  likeCount    Int            @default(0)
+  authorKey    String         @default("guest_bootstrap")
+  authorRole   Role           @default(GUEST)
+  reactions    PostReaction[]
+}
+
+model PostReaction {
+  id        Int          @id @default(autoincrement())
+  postId    Int
+  userId    String
+  type      ReactionType
+  createdAt DateTime     @default(now())
+  updatedAt DateTime     @updatedAt
+  post      Post         @relation(fields: [postId], references: [id], onDelete: Cascade)
+
+  @@unique([postId, userId])
+  @@index([postId])
+  @@index([userId])
+}
+
+enum ReactionType {
+  LIKE
+  DISLIKE
+}
+
+enum Role {
+  GUEST
+  USER
+  ADMIN
+}
