@@ -32,6 +32,126 @@ model PostReaction {
   @@index([userId])
 }
 
+model Venue {
+  id        Int         @id @default(autoincrement())
+  name      String
+  address   String
+  region    String
+  lat       Float
+  lng       Float
+  createdAt DateTime    @default(now())
+  updatedAt DateTime    @updatedAt
+  matchPosts MatchPost[]
+  matches   Match[]
+
+  @@index([region])
+}
+
+model Team {
+  id           Int              @id @default(autoincrement())
+  name         String
+  region       String
+  skillRating  Int              @default(0)
+  createdAt    DateTime         @default(now())
+  updatedAt    DateTime         @updatedAt
+  hostMatchPosts MatchPost[]    @relation("HostTeamMatchPosts")
+  challenges   MatchChallenge[] @relation("ChallengerTeamChallenges")
+  hostedMatches Match[]         @relation("HostTeamMatches")
+  awayMatches  Match[]          @relation("AwayTeamMatches")
+
+  @@index([region])
+}
+
+model MatchPost {
+  id          Int              @id @default(autoincrement())
+  hostTeamId  Int
+  venueId     Int
+  title       String
+  description String
+  status      MatchPostStatus  @default(OPEN)
+  createdAt   DateTime         @default(now())
+  updatedAt   DateTime         @updatedAt
+  hostTeam    Team             @relation("HostTeamMatchPosts", fields: [hostTeamId], references: [id])
+  venue       Venue            @relation(fields: [venueId], references: [id])
+  slots       TimeSlot[]
+  challenges  MatchChallenge[]
+  matches     Match[]
+}
+
+model TimeSlot {
+  id          Int              @id @default(autoincrement())
+  matchPostId Int
+  startAt     DateTime
+  endAt       DateTime
+  status      TimeSlotStatus   @default(OPEN)
+  createdAt   DateTime         @default(now())
+  matchPost   MatchPost        @relation(fields: [matchPostId], references: [id])
+  challenges  MatchChallenge[]
+
+  @@index([matchPostId, startAt])
+}
+
+model MatchChallenge {
+  id               Int             @id @default(autoincrement())
+  matchPostId      Int
+  slotId           Int
+  challengerTeamId Int
+  message          String
+  status           ChallengeStatus @default(PENDING)
+  createdAt        DateTime        @default(now())
+  updatedAt        DateTime        @updatedAt
+  matchPost        MatchPost       @relation(fields: [matchPostId], references: [id])
+  slot             TimeSlot        @relation(fields: [slotId], references: [id])
+  challengerTeam   Team            @relation("ChallengerTeamChallenges", fields: [challengerTeamId], references: [id])
+
+  @@unique([matchPostId, challengerTeamId])
+  @@index([slotId])
+}
+
+model Match {
+  id         Int         @id @default(autoincrement())
+  hostTeamId Int
+  awayTeamId Int
+  venueId    Int
+  startAt    DateTime
+  endAt      DateTime
+  status     MatchStatus @default(SCHEDULED)
+  matchPostId Int?
+  createdAt  DateTime    @default(now())
+  updatedAt  DateTime    @updatedAt
+  hostTeam   Team        @relation("HostTeamMatches", fields: [hostTeamId], references: [id])
+  awayTeam   Team        @relation("AwayTeamMatches", fields: [awayTeamId], references: [id])
+  venue      Venue       @relation(fields: [venueId], references: [id])
+  matchPost  MatchPost?  @relation(fields: [matchPostId], references: [id])
+
+  @@index([hostTeamId, startAt])
+  @@index([awayTeamId, startAt])
+}
+
+enum MatchPostStatus {
+  OPEN
+  CLOSED
+  CANCELLED
+}
+
+enum TimeSlotStatus {
+  OPEN
+  LOCKED
+}
+
+enum ChallengeStatus {
+  PENDING
+  ACCEPTED
+  REJECTED
+  WITHDRAWN
+}
+
+enum MatchStatus {
+  SCHEDULED
+  CANCELLED
+  COMPLETED
+}
+
 enum ReactionType {
   LIKE
   DISLIKE
