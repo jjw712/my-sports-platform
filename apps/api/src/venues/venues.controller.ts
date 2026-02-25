@@ -13,8 +13,14 @@ export class VenuesController {
     return this.venuesService.create(dto);
   }
 
+  @Get('regions')
+  listRegions() {
+    return this.venuesService.listRegions();
+  }
+
   @Get()
-  list(@Query('region') region?: string) {
-    return this.venuesService.list(region);
+  list(@Query('region') region?: string, @Query('query') query?: string) {
+    const trimmedQuery = query?.trim();
+    return this.venuesService.list(region, trimmedQuery);
   }
 }

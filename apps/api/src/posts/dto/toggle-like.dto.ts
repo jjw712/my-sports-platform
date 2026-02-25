@@ -1,9 +1,9 @@
-import { IsIn, IsString } from "class-validator";
+import { IsIn, IsString } from 'class-validator';
 
 export class ToggleReactionDto {
   @IsString()
   userId!: string;
 
-  @IsIn(["LIKE", "DISLIKE"])
-  type!: "LIKE" | "DISLIKE";
+  @IsIn(['LIKE', 'DISLIKE'])
+  type!: 'LIKE' | 'DISLIKE';
 }

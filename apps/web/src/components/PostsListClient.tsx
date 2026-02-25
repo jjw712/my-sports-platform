@@ -215,7 +215,11 @@ export default function PostsListClient({ initial }: Props) {
           const canEdit = !!meKey && p.authorKey === meKey; 
 
           return (
-            <li key={p.id} style={{ borderBottom: '1px solid #333', padding: '10px 0' }}>
+            <li
+              key={p.id}
+              className="bg-white dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700"
+              style={{ padding: "10px 12px", borderRadius: 6 }}
+            >
               {!isEditing ? (
                 <div style={{ display: 'flex', gap: 12, alignItems: 'center' }}>
                   <div style={{ flex: 1 }}>

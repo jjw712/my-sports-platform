@@ -30,7 +30,10 @@ export default function NewPostPage() {
   }
 
   return (
-    <main style={{ padding: 24 }}>
+    <main
+      className="bg-gray-50 dark:bg-zinc-900"
+      style={{ padding: 24, minHeight: "100vh" }}
+    >
       <h1>Write Post</h1>
       {err && <p style={{ color: "crimson" }}>{err}</p>}
       <div style={{ display: "grid", gap: 8, maxWidth: 520 }}>

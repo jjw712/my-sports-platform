@@ -22,3 +22,9 @@ export class AppController {
     });
   }
 }
+
+describe('AppController (legacy)', () => {
+  it('is defined', () => {
+    expect(AppController).toBeDefined();
+  });
+});

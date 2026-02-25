@@ -10,14 +10,13 @@ import {
   Query,
   Req,
   UseGuards,
-  ParseIntPipe,
 } from '@nestjs/common';
 import { ApiTags } from '@nestjs/swagger';
 import { Request } from 'express';
 import { PostsService } from './posts.service';
 import { CreatePostDto } from './dto/create-post.dto';
 import { UpdatePostDto } from './dto/update-post.dto';
-import { ToggleReactionDto } from "./dto/toggle-like.dto";
+import { ToggleReactionDto } from './dto/toggle-like.dto';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { AuthUser } from '../auth/auth.types';
 
@@ -25,11 +24,10 @@ interface AuthenticatedRequest extends Request {
   user: AuthUser;
 }
 
-
 @ApiTags('posts')
 @Controller('posts') // main.ts에서 /api prefix 있으니 /api/posts
 export class PostsController {
-  constructor(private readonly postsService: PostsService,) { }
+  constructor(private readonly postsService: PostsService) {}
 
   private parseId(id: string): number {
     const n = Number(id);
@@ -68,7 +66,6 @@ export class PostsController {
     return this.postsService.create(dto, req.user);
   }
 
-
   @Post(':id/reaction')
   toggleReaction(@Param('id') id: string, @Body() dto: ToggleReactionDto) {
     return this.postsService.toggleReaction(this.parseId(id), dto);
@@ -82,7 +79,9 @@ export class PostsController {
     @Body() body: UpdatePostDto,
   ) {
     if (body.title === undefined && body.content === undefined) {
-      throw new BadRequestException('at least one of title/content is required');
+      throw new BadRequestException(
+        'at least one of title/content is required',
+      );
     }
     return this.postsService.update(this.parseId(id), body, req.user);
   }

@@ -100,7 +100,10 @@ export default function PostDetailClient({ initialPost }: { initialPost: Post })
   }
 
   return (
-    <main style={{ padding: 24 }}>
+    <main
+      className="bg-gray-50 dark:bg-zinc-900"
+      style={{ padding: 24, minHeight: "100vh" }}
+    >
       {!isEdit ? (
         <>
           <h1>{post.title}</h1>

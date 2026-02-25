@@ -48,7 +48,10 @@ export default function PostsListPage() {
   }, []);
 
   return (
-    <main style={{ padding: 24 }}>
+    <main
+      className="bg-gray-50 dark:bg-zinc-900"
+      style={{ padding: 24, minHeight: "100vh" }}
+    >
       <h1>Posts List</h1>
       <div style={{ margin: "12px 0" }}>
         <Link href="/posts/new">Write</Link>
@@ -56,9 +59,13 @@ export default function PostsListPage() {
 
       {err && <p style={{ color: "crimson" }}>{err}</p>}
 
-      <ul>
+      <ul style={{ display: "grid", gap: 8 }}>
         {items.map((p) => (
-          <li key={p.id}>
+          <li
+            key={p.id}
+            className="bg-white dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700"
+            style={{ padding: 10, borderRadius: 6 }}
+          >
             <Link href={`/posts/${p.id}`}>{p.title}</Link>
           </li>
         ))}
