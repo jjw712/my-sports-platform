@@ -19,8 +19,25 @@ export class VenuesController {
   }
 
   @Get()
-  list(@Query('region') region?: string, @Query('query') query?: string) {
+  list(
+    @Query('bbox') bbox?: string,
+    @Query('sport') sport?: string,
+    @Query('query') query?: string,
+  ) {
     const trimmedQuery = query?.trim();
-    return this.venuesService.list(region, trimmedQuery);
+    const parsedBbox = parseBbox(bbox);
+    return this.venuesService.list({
+      bbox: parsedBbox ?? undefined,
+      sport: sport?.trim() || undefined,
+      query: trimmedQuery,
+    });
   }
+}
+
+function parseBbox(value?: string): [number, number, number, number] | null {
+  if (!value) return null;
+  const parts = value.split(',').map((part) => Number(part.trim()));
+  if (parts.length !== 4) return null;
+  if (parts.some((part) => Number.isNaN(part))) return null;
+  return [parts[0], parts[1], parts[2], parts[3]];
 }

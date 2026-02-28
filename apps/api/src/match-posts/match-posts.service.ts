@@ -68,7 +68,7 @@ export class MatchPostsService {
         status: input.includeClosed
           ? { in: ['OPEN', 'CLOSED'] }
           : 'OPEN',
-        ...(input.region ? { venue: { region: input.region } } : {}),
+        ...(input.region ? { venue: { sido: input.region } } : {}),
         ...(slotRange ? { slots: { some: slotRange } } : {}),
       },
       orderBy: { createdAt: 'desc' },

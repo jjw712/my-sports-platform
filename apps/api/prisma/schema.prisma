@@ -33,18 +33,26 @@ model PostReaction {
 }
 
 model Venue {
-  id        Int         @id @default(autoincrement())
-  name      String
-  address   String
-  region    String
-  lat       Float
-  lng       Float
-  createdAt DateTime    @default(now())
-  updatedAt DateTime    @updatedAt
+  id           String   @id @default(cuid())
+  name         String
+  sido         String
+  sigungu      String?
+  address      String?
+  lat          Float?
+  lng          Float?
+  sports       String[]
+  facilityType String?
+  source       String
+  sourceId     String?
+  uniqueKey    String   @unique
+  fetchedAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
   matchPosts MatchPost[]
   matches   Match[]
 
-  @@index([region])
+  @@index([sido, sigungu])
+  @@index([lat, lng])
+  @@unique([source, sourceId])
 }
 
 model Team {
@@ -65,7 +73,7 @@ model Team {
 model MatchPost {
   id          Int              @id @default(autoincrement())
   hostTeamId  Int
-  venueId     Int
+  venueId     String
   title       String
   description String
   status      MatchPostStatus  @default(OPEN)
@@ -112,7 +120,7 @@ model Match {
   id         Int         @id @default(autoincrement())
   hostTeamId Int
   awayTeamId Int
-  venueId    Int
+  venueId    String
   startAt    DateTime
   endAt      DateTime
   status     MatchStatus @default(SCHEDULED)

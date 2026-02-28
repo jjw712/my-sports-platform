@@ -3,7 +3,7 @@ import { z } from "zod";
 export const RoleSchema = z.enum(["GUEST", "USER", "ADMIN"]);
 
 export const PostSchema = z.object({
-  id: z.number(),
+  id: z.string(),
   title: z.string(),
   content: z.string(),
   createdAt: z.string(),
@@ -26,12 +26,22 @@ export const PostsListResponseSchema = z.object({
 export const PostsPageSchema = PostsListResponseSchema;
 
 export const VenueSchema = z.object({
-  id: z.number(),
+  id: z.string(),
   name: z.string(),
-  address: z.string(),
-  region: z.string(),
-  lat: z.number(),
-  lng: z.number(),
+  sido: z.string(),
+  sigungu: z.string().nullable().optional(),
+  address: z.string().nullable().optional(),
+  lat: z.number().nullable().optional(),
+  lng: z.number().nullable().optional(),
+ // sports: z.array(z.string()),
+  facilityType: z.string().nullable().optional(),
+  source: z.string().optional(),
+  sourceId: z.string().nullable().optional(),
+  uniqueKey: z.string().optional(),
+
+  // NOTE: backend doesn't send this yet; derive on client
+  region: z.string().optional(),
+  sports: z.array(z.string()).default([])
 });
 
 export const TeamSchema = z.object({
@@ -53,7 +63,7 @@ export const TimeSlotSchema = z.object({
 export const MatchPostItemSchema = z.object({
   id: z.number(),
   hostTeamId: z.number(),
-  venueId: z.number(),
+  venueId: z.string(),
   title: z.string(),
   description: z.string(),
   status: z.enum(["OPEN", "CLOSED", "CANCELLED"]),
@@ -89,7 +99,7 @@ export const MatchSchema = z.object({
   id: z.number(),
   hostTeamId: z.number(),
   awayTeamId: z.number(),
-  venueId: z.number(),
+  venueId: z.string(),
   startAt: z.string(),
   endAt: z.string(),
   status: z.enum(["SCHEDULED", "CANCELLED", "COMPLETED"]),

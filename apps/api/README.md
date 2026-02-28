@@ -57,6 +57,25 @@ $ npm run test:e2e
 $ npm run test:cov
 ```
 
+## Kakao geocoding & venue coords
+
+Required env vars (see `.env.example`):
+- `KAKAO_REST_KEY`
+- `DATABASE_URL`
+
+Backfill existing venues without coords:
+```bash
+cd apps/api
+npm run backfill:coords -- --limit 500 --delay 120
+```
+
+Ingest soccer venues (optional):
+```bash
+cd apps/api
+npm run ingest:venues -- --dry-run --limit 50
+npm run ingest:venues
+```
+
 ## Deployment
 
 When you're ready to deploy your NestJS application to production, there are some key steps you can take to ensure it runs as efficiently as possible. Check out the [deployment documentation](https://docs.nestjs.com/deployment) for more information.

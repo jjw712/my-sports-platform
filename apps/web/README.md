@@ -96,6 +96,12 @@ Backend (apps/api/.env)
 env
 코드 복사
 DATABASE_URL=your_database_url
+
+Kakao Maps (apps/web/.env.local)
+env
+코드 복사
+NEXT_PUBLIC_KAKAO_JS_KEY=your_kakao_js_key
+API_BASE=http://localhost:4000
 Using ngrok (External Access)
 외부 공유가 필요할 때만 ngrok 사용.
 

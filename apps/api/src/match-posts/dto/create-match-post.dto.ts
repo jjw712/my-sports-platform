@@ -15,10 +15,9 @@ export class CreateMatchPostDto {
   @Min(1)
   hostTeamId!: number;
 
-  @Type(() => Number)
-  @IsInt()
-  @Min(1)
-  venueId!: number;
+  @IsString()
+  @Length(1, 50)
+  venueId!: string;
 
   @IsString()
   @Length(1, 100)
