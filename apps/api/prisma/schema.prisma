@@ -57,8 +57,11 @@ model Venue {
 
 model Team {
   id           Int              @id @default(autoincrement())
-  name         String
-  region       String
+  name         String           @unique
+  sport        TeamSport        @default(SOCCER)
+  region       String?
+  logoUrl      String?
+  description  String?
   skillRating  Int              @default(0)
   createdAt    DateTime         @default(now())
   updatedAt    DateTime         @updatedAt
@@ -158,6 +161,12 @@ enum MatchStatus {
   SCHEDULED
   CANCELLED
   COMPLETED
+}
+
+enum TeamSport {
+  SOCCER
+  BASKETBALL
+  BASEBALL
 }
 
 enum ReactionType {

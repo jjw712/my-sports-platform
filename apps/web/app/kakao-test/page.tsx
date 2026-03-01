@@ -46,7 +46,7 @@ export default function Page() {
 
   return (
     <div className="space-y-3">
-      <h1 className="text-lg font-semibold">Kakao Map</h1>
+      <h1 className="text-lg font-semibold text-zinc-900 dark:text-zinc-50">Kakao Map</h1>
       {error && <p className="text-sm text-red-500">{error}</p>}
       <KakaoMap center={center} markers={markers} />
     </div>

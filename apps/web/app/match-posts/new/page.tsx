@@ -79,12 +79,8 @@ export default function NewMatchPostPage() {
       try {
         const qs = new URLSearchParams();
         if (region.trim()) qs.set("region", region.trim());
-        const list = await apiGet(`/api/venues?${qs.toString()}`, VenuesSchema);
-const withRegion = list.map((v) => ({
-  ...v,
-  region: v.region ?? `${v.sido}${v.sigungu ? " " + v.sigungu : ""}`,
-}));
-setVenues(withRegion);
+        const list = await apiGet(`/api/teams?${qs.toString()}`, TeamsSchema);
+        setTeams(list);
       } catch (e: any) {
         setErr(e?.message ?? "failed to load teams");
       } finally {
@@ -182,7 +178,7 @@ setVenues(withRegion);
         "/api/match-posts",
         {
           hostTeamId: Number(hostTeamId),
-          venueId: Number(venueId),
+          venueId: String(venueId),
           title: title.trim(),
           description: description.trim(),
           slots: slotPayload,

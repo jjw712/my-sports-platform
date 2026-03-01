@@ -10,6 +10,8 @@
     "format": "prettier --write \"src/**/*.ts\" \"test/**/*.ts\"",
     "ingest:venues": "ts-node src/ingest/venues/run.ts",
     "backfill:coords": "ts-node scripts/backfillLatLng.ts",
+    "audit:team-sport": "ts-node scripts/auditTeamSport.ts",
+    "fix:team-sport": "ts-node scripts/fixTeamSport.ts",
     "start": "nest start",
     "start:dev": "nest start --watch",
     "start:debug": "nest start --debug --watch",

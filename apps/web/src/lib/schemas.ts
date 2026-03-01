@@ -47,8 +47,37 @@ export const VenueSchema = z.object({
 export const TeamSchema = z.object({
   id: z.number(),
   name: z.string(),
-  region: z.string(),
-  skillRating: z.number(),
+  sport: z.enum(["SOCCER", "BASKETBALL", "BASEBALL"]),
+  region: z.string().nullable().optional(),
+  logoUrl: z.string().nullable().optional(),
+  description: z.string().nullable().optional(),
+  skillRating: z.number().default(0),
+  createdAt: z.string().optional(),
+  updatedAt: z.string().optional(),
+});
+
+const emptyToUndefined = (v: unknown) =>
+  typeof v === "string" && v.trim() === "" ? undefined : v;
+
+export const TeamCreateSchema = z.object({
+  name: z.string().trim().min(1, "팀 이름은 필수입니다.").max(100),
+  sport: z.enum(["SOCCER", "BASKETBALL", "BASEBALL"]),
+  region: z.preprocess(emptyToUndefined, z.string().trim().max(50).optional()),
+  logoUrl: z.preprocess(
+    emptyToUndefined,
+    z.string().trim().url("로고 URL 형식이 올바르지 않습니다.").max(500).optional(),
+  ),
+  description: z.preprocess(emptyToUndefined, z.string().trim().max(2000).optional()),
+});
+
+export const TeamCreateResponseSchema = TeamSchema.pick({
+  id: true,
+  name: true,
+  sport: true,
+  region: true,
+  logoUrl: true,
+  description: true,
+  createdAt: true,
 });
 
 export const TimeSlotSchema = z.object({
@@ -128,6 +157,7 @@ export type PostsListResponse = z.infer<typeof PostsListResponseSchema>;
 export type PostsPage = PostsListResponse; // 별칭
 export type Venue = z.infer<typeof VenueSchema>;
 export type Team = z.infer<typeof TeamSchema>;
+export type TeamCreateInput = z.infer<typeof TeamCreateSchema>;
 export type TimeSlot = z.infer<typeof TimeSlotSchema>;
 export type MatchPostItem = z.infer<typeof MatchPostItemSchema>;
 export type MatchPostsListResponse = z.infer<typeof MatchPostsListResponseSchema>;

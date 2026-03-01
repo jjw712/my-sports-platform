@@ -67,6 +67,10 @@ export default function KakaoMap({ center, markers, level = 5, height = 480 }: K
             center: new window.kakao.maps.LatLng(center.lat, center.lng),
             level,
           });
+          const infowindow = new window.kakao.maps.InfoWindow({
+            zIndex: 10,
+            removable: true,
+          });
 
           markerObjs = markers.map((m) => {
             const marker = new window.kakao.maps.Marker({
@@ -74,17 +78,47 @@ export default function KakaoMap({ center, markers, level = 5, height = 480 }: K
             });
             marker.setMap(map);
 
-            if (m.title) {
+            window.kakao.maps.event.addListener(marker, "click", () => {
               const content = document.createElement("div");
-              content.style.padding = "6px 8px";
-              content.style.fontSize = "12px";
-              content.textContent = m.title;
 
-              const infowindow = new window.kakao.maps.InfoWindow({ content });
-              window.kakao.maps.event.addListener(marker, "click", () => {
-                infowindow.open(map, marker);
-              });
-            }
+              // 스타일
+              content.style.minWidth = "180px";
+              content.style.padding = "12px 14px";
+              content.style.borderRadius = "12px";
+              content.style.background = "#111827";
+              content.style.color = "#f9fafb";
+              content.style.fontSize = "13px";
+              content.style.fontWeight = "600";
+              content.style.lineHeight = "1.4";
+              content.style.boxShadow = "0 10px 25px rgba(0,0,0,0.35)";
+              content.style.border = "1px solid rgba(255,255,255,0.08)";
+              content.style.whiteSpace = "nowrap";
+
+              const title = document.createElement("div");
+              title.textContent = `📍 ${m.title ?? "이름 없음"}`;
+              title.style.marginBottom = "6px";
+
+              const btn = document.createElement("button");
+              btn.textContent = "카카오맵에서 보기";
+              btn.style.fontSize = "12px";
+              btn.style.color = "#93c5fd";
+              btn.style.background = "transparent";
+              btn.style.border = "0";
+              btn.style.cursor = "pointer";
+
+              btn.onclick = () => {
+                window.open(
+                  `https://map.kakao.com/link/map/${encodeURIComponent(m.title ?? "")},${m.lat},${m.lng}`,
+                  "_blank"
+                );
+              };
+
+              content.appendChild(title);
+              content.appendChild(btn);
+
+              infowindow.setContent(content);   // 🔥 여기 핵심
+              infowindow.open(map, marker);
+            });
 
             return marker;
           });

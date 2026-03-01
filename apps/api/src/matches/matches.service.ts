@@ -28,10 +28,22 @@ export class MatchesService {
       orderBy: [{ startAt: 'asc' }, { id: 'asc' }],
       include: {
         hostTeam: {
-          select: { id: true, name: true, region: true, skillRating: true },
+          select: {
+            id: true,
+            name: true,
+            sport: true,
+            region: true,
+            skillRating: true,
+          },
         },
         awayTeam: {
-          select: { id: true, name: true, region: true, skillRating: true },
+          select: {
+            id: true,
+            name: true,
+            sport: true,
+            region: true,
+            skillRating: true,
+          },
         },
         venue: {
           select: {

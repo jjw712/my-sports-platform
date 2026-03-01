@@ -24,6 +24,8 @@ export default function NavBar() {
       <Link href="/match-posts">Match Posts</Link>
       <Link href="/match-posts/new">매치글 작성</Link>
       <Link href="/matches">Matches</Link>
+      <Link href="/teams/new">팀 등록</Link>
+      <Link href="/kakao-test">Map</Link>
       <div style={{ marginLeft: "auto" }}>
         <button
           onClick={toggleTheme}
