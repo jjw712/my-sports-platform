@@ -10,7 +10,8 @@ function upstreamTeamsUrl(req: Request) {
   if (!apiBase) throw new Error("API_BASE is not set");
   const u = new URL(req.url, "http://localhost");
   const upstream = new URL("/api/teams", apiBase);
-  upstream.search = u.search;
+  u.searchParams.delete("region");
+  upstream.search = u.searchParams.toString();
   return upstream.toString();
 }
 

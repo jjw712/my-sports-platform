@@ -77,9 +77,7 @@ export default function NewMatchPostPage() {
     async function loadTeams() {
       setTeamsLoading(true);
       try {
-        const qs = new URLSearchParams();
-        if (region.trim()) qs.set("region", region.trim());
-        const list = await apiGet(`/api/teams?${qs.toString()}`, TeamsSchema);
+        const list = await apiGet("/api/teams", TeamsSchema);
         setTeams(list);
       } catch (e: any) {
         setErr(e?.message ?? "failed to load teams");
@@ -88,6 +86,11 @@ export default function NewMatchPostPage() {
       }
     }
 
+    setErr(null);
+    loadTeams();
+  }, []);
+
+  useEffect(() => {
     async function loadVenues() {
       setVenuesLoading(true);
       try {
@@ -103,7 +106,6 @@ export default function NewMatchPostPage() {
     }
 
     setErr(null);
-    loadTeams();
     loadVenues();
   }, [region]);
 

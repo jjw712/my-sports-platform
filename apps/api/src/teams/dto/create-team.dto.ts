@@ -1,6 +1,5 @@
 import { Type } from 'class-transformer';
 import {
-  IsEnum,
   IsInt,
   IsOptional,
   IsString,
@@ -17,9 +16,15 @@ export class CreateTeamDto {
   @Length(1, 100)
   name!: string;
 
-  @ApiProperty({ enum: TeamSport, example: TeamSport.SOCCER })
-  @IsEnum(TeamSport)
-  sport!: TeamSport;
+  @ApiProperty({
+    enum: TeamSport,
+    example: TeamSport.SOCCER,
+    description:
+      'SOCCER/BASKETBALL/BASEBALL 또는 별칭(FOOTBALL, 축구, soccer, 농구, 야구)',
+  })
+  @IsString()
+  @Length(1, 30)
+  sport!: string;
 
   @ApiPropertyOptional({ example: 'Seoul', maxLength: 50 })
   @IsOptional()

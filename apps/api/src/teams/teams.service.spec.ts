@@ -1,5 +1,6 @@
 import { TeamsService } from './teams.service';
 import { PrismaService } from '../prisma.service';
+import { BadRequestException } from '@nestjs/common';
 
 const createPrismaMock = () =>
   ({
@@ -59,6 +60,39 @@ describe('TeamsService', () => {
     });
   });
 
+  it('normalizes sport aliases on create payload', async () => {
+    const prisma = createPrismaMock();
+    const service = new TeamsService(prisma);
+    const dto = { name: 'Gamma', sport: 'soccer', region: 'Seoul' } as const;
+
+    const create = jest
+      .fn()
+      .mockResolvedValue({ id: 1, name: 'Gamma', sport: 'SOCCER', region: 'Seoul' });
+    prisma.client.team.create = create;
+
+    await service.create(dto as any);
+
+    expect(create).toHaveBeenCalledWith({
+      data: {
+        name: 'Gamma',
+        sport: 'SOCCER',
+        region: 'Seoul',
+        logoUrl: null,
+        description: null,
+        skillRating: 0,
+      },
+    });
+  });
+
+  it('throws 400 for unknown sport on create payload', async () => {
+    const prisma = createPrismaMock();
+    const service = new TeamsService(prisma);
+
+    await expect(
+      service.create({ name: 'Delta', sport: 'volleyball' } as any),
+    ).rejects.toBeInstanceOf(BadRequestException);
+  });
+
   it('lists teams without region filter', async () => {
     const prisma = createPrismaMock();
     const service = new TeamsService(prisma);
@@ -74,17 +108,17 @@ describe('TeamsService', () => {
     });
   });
 
-  it('lists teams filtered by region', async () => {
+  it('ignores region when listing teams', async () => {
     const prisma = createPrismaMock();
     const service = new TeamsService(prisma);
 
     const findMany = jest.fn().mockResolvedValue([]);
     prisma.client.team.findMany = findMany;
 
-    await service.list({ region: 'Seoul' });
+    await service.list({ region: 'Seoul' } as any);
 
     expect(findMany).toHaveBeenCalledWith({
-      where: { region: 'Seoul' },
+      where: {},
       orderBy: { createdAt: 'desc' },
     });
   });
@@ -107,17 +141,17 @@ describe('TeamsService', () => {
     });
   });
 
-  it('lists teams filtered by region and sport', async () => {
+  it('lists teams filtered by sport only', async () => {
     const prisma = createPrismaMock();
     const service = new TeamsService(prisma);
 
     const findMany = jest.fn().mockResolvedValue([]);
     prisma.client.team.findMany = findMany;
 
-    await service.list({ region: 'Seoul', sport: 'BASKETBALL' as any });
+    await service.list({ sport: 'BASKETBALL' as any });
 
     expect(findMany).toHaveBeenCalledWith({
-      where: { region: 'Seoul', sport: 'BASKETBALL' },
+      where: { sport: 'BASKETBALL' },
       orderBy: { createdAt: 'desc' },
     });
   });
@@ -141,7 +175,9 @@ describe('TeamsService', () => {
     const prisma = createPrismaMock();
     const service = new TeamsService(prisma);
 
-    const findUnique = jest.fn().mockResolvedValue({ id: 1, name: 'Alpha' });
+    const findUnique = jest
+      .fn()
+      .mockResolvedValue({ id: 1, name: 'Alpha', sport: 'SOCCER' });
     prisma.client.team.findUnique = findUnique;
 
     await service.findOne(1);

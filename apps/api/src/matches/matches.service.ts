@@ -1,5 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from '../prisma.service';
+import { normalizeTeamSportOrThrow } from '../teams/team-sport.util';
 
 @Injectable()
 export class MatchesService {
@@ -65,6 +66,25 @@ export class MatchesService {
     const nextCursor =
       items.length === input.take ? items[items.length - 1].id : null;
 
-    return { items, nextCursor };
+    return {
+      items: items.map((item, index) => ({
+        ...item,
+        hostTeam: {
+          ...item.hostTeam,
+          sport: normalizeTeamSportOrThrow(
+            item.hostTeam.sport,
+            `items[${index}].hostTeam.sport`,
+          ),
+        },
+        awayTeam: {
+          ...item.awayTeam,
+          sport: normalizeTeamSportOrThrow(
+            item.awayTeam.sport,
+            `items[${index}].awayTeam.sport`,
+          ),
+        },
+      })),
+      nextCursor,
+    };
   }
 }

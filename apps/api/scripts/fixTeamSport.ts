@@ -2,6 +2,7 @@ import 'dotenv/config';
 import { PrismaClient, TeamSport } from '@prisma/client';
 import { PrismaPg } from '@prisma/adapter-pg';
 import { Pool } from 'pg';
+import { normalizeTeamSport } from '../src/teams/team-sport.util';
 
 type TeamRow = {
   id: number;
@@ -12,31 +13,6 @@ type SportCountRow = {
   sport: string | null;
   count: bigint | number;
 };
-
-function normalizeTeamSport(input: string | null): {
-  value: TeamSport;
-  unknown: boolean;
-} {
-  const raw = (input ?? '').trim();
-  const upper = raw.toUpperCase();
-
-  if (upper === TeamSport.SOCCER) return { value: TeamSport.SOCCER, unknown: false };
-  if (upper === TeamSport.BASKETBALL) return { value: TeamSport.BASKETBALL, unknown: false };
-  if (upper === TeamSport.BASEBALL) return { value: TeamSport.BASEBALL, unknown: false };
-
-  const compact = upper.replace(/[\s_-]+/g, '');
-  if (compact === 'SOCCER' || compact === 'FOOTBALL') {
-    return { value: TeamSport.SOCCER, unknown: false };
-  }
-  if (compact === 'BASKETBALL') {
-    return { value: TeamSport.BASKETBALL, unknown: false };
-  }
-  if (compact === 'BASEBALL') {
-    return { value: TeamSport.BASEBALL, unknown: false };
-  }
-
-  return { value: TeamSport.SOCCER, unknown: true };
-}
 
 async function printAudit(prisma: PrismaClient, title: string) {
   const rows = await prisma.$queryRaw<SportCountRow[]>`
@@ -80,29 +56,34 @@ async function main() {
     `;
 
     let changed = 0;
-    const unknownIds: number[] = [];
+    const unknownRows: Array<{ id: number; sport: string | null }> = [];
 
     for (const team of teams) {
       const normalized = normalizeTeamSport(team.sport);
-      if (normalized.unknown) unknownIds.push(team.id);
+      if (!normalized) {
+        unknownRows.push({ id: team.id, sport: team.sport });
+        continue;
+      }
 
-      if ((team.sport ?? '').trim().toUpperCase() === normalized.value) {
+      if ((team.sport ?? '').trim().toUpperCase() === normalized) {
         continue;
       }
 
       await prisma.team.update({
         where: { id: team.id },
-        data: { sport: normalized.value },
+        data: { sport: normalized as TeamSport },
       });
       changed += 1;
     }
 
-    console.log(`[fix:team-sport] updated rows: ${changed}`);
-    if (unknownIds.length > 0) {
-      console.log(
-        `[fix:team-sport] unknown values defaulted to SOCCER for team ids: ${unknownIds.join(', ')}`,
-      );
+    if (unknownRows.length > 0) {
+      const details = unknownRows
+        .map((row) => `id=${row.id}, sport=${row.sport ?? '(null)'}`)
+        .join(' | ');
+      throw new Error(`[fix:team-sport] unknown sport values found: ${details}`);
     }
+
+    console.log(`[fix:team-sport] updated rows: ${changed}`);
 
     await printAudit(prisma, '[fix:team-sport] after');
   } finally {

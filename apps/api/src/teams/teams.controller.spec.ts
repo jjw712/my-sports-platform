@@ -1,5 +1,6 @@
 import { TeamsController } from './teams.controller';
 import { TeamsService } from './teams.service';
+import { BadRequestException } from '@nestjs/common';
 
 const createServiceMock = () =>
   ({
@@ -22,34 +23,48 @@ describe('TeamsController', () => {
     expect(create).toHaveBeenCalledWith(dto);
   });
 
-  it('delegates list to service with region', async () => {
+  it('delegates list to service with sport/take/cursor', async () => {
     const service = createServiceMock();
     const controller = new TeamsController(service);
 
     const list = jest.fn().mockResolvedValue([]);
     service.list = list;
 
-    await controller.list('Seoul', undefined, undefined, undefined);
+    await controller.list('soccer', '10', '3');
 
     expect(list).toHaveBeenCalledWith({
-      region: 'Seoul',
-      sport: undefined,
-      take: undefined,
+      sport: 'SOCCER',
+      take: 10,
+      cursor: 3,
+    });
+  });
+
+  it('normalizes sport aliases in list query', async () => {
+    const service = createServiceMock();
+    const controller = new TeamsController(service);
+
+    const list = jest.fn().mockResolvedValue([]);
+    service.list = list;
+
+    await controller.list('농구', '5', undefined);
+
+    expect(list).toHaveBeenCalledWith({
+      sport: 'BASKETBALL',
+      take: 5,
       cursor: undefined,
     });
   });
 
-  it('delegates list to service without region', async () => {
+  it('delegates list to service with no filters', async () => {
     const service = createServiceMock();
     const controller = new TeamsController(service);
 
     const list = jest.fn().mockResolvedValue([]);
     service.list = list;
 
-    await controller.list(undefined, undefined, undefined, undefined);
+    await controller.list(undefined, undefined, undefined);
 
     expect(list).toHaveBeenCalledWith({
-      region: undefined,
       sport: undefined,
       take: undefined,
       cursor: undefined,
@@ -66,5 +81,14 @@ describe('TeamsController', () => {
     await controller.findOne(1);
 
     expect(findOne).toHaveBeenCalledWith(1);
+  });
+
+  it('throws 400 on unknown sport query', async () => {
+    const service = createServiceMock();
+    const controller = new TeamsController(service);
+
+    expect(() => controller.list('volleyball', undefined, undefined)).toThrow(
+      BadRequestException,
+    );
   });
 });

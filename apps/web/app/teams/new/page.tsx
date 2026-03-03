@@ -10,6 +10,15 @@ import { Select, SelectItem } from "@/components/ui/select";
 import { TeamCreateResponseSchema, TeamCreateSchema } from "@/lib/schemas";
 
 type Sport = "SOCCER" | "BASKETBALL" | "BASEBALL";
+const SPORT_OPTIONS: Array<{ value: Sport; label: string }> = [
+  { value: "SOCCER", label: "축구" },
+  { value: "BASKETBALL", label: "농구" },
+  { value: "BASEBALL", label: "야구" },
+];
+
+function isSport(value: string): value is Sport {
+  return SPORT_OPTIONS.some((option) => option.value === value);
+}
 
 export default function NewTeamPage() {
   const router = useRouter();
@@ -93,10 +102,17 @@ export default function NewTeamPage() {
 
               <div className="grid gap-2">
                 <span className="text-sm">종목 *</span>
-                <Select value={sport} onChange={(e) => setSport(e.target.value as Sport)}>
-                  <SelectItem value="SOCCER">축구</SelectItem>
-                  <SelectItem value="BASKETBALL">농구</SelectItem>
-                  <SelectItem value="BASEBALL">야구</SelectItem>
+                <Select
+                  value={sport}
+                  onChange={(e) => {
+                    if (isSport(e.target.value)) setSport(e.target.value);
+                  }}
+                >
+                  {SPORT_OPTIONS.map((option) => (
+                    <SelectItem key={option.value} value={option.value}>
+                      {option.label}
+                    </SelectItem>
+                  ))}
                 </Select>
               </div>
 

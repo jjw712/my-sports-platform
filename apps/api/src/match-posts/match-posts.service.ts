@@ -7,6 +7,7 @@ import {
 import { PrismaService } from '../prisma.service';
 import { CreateMatchPostDto } from './dto/create-match-post.dto';
 import { CreateMatchChallengeDto } from './dto/create-match-challenge.dto';
+import { normalizeTeamSportOrThrow } from '../teams/team-sport.util';
 
 @Injectable()
 export class MatchPostsService {
@@ -29,7 +30,7 @@ export class MatchPostsService {
       return { startAt, endAt };
     });
 
-    return this.prisma.client.matchPost.create({
+    const created = await this.prisma.client.matchPost.create({
       data: {
         hostTeamId: dto.hostTeamId,
         venueId: dto.venueId,
@@ -43,6 +44,13 @@ export class MatchPostsService {
         slots: true,
       },
     });
+    return {
+      ...created,
+      hostTeam: {
+        ...created.hostTeam,
+        sport: normalizeTeamSportOrThrow(created.hostTeam.sport, 'hostTeam.sport'),
+      },
+    };
   }
 
   async list(input: {
@@ -82,7 +90,19 @@ export class MatchPostsService {
     const nextCursor =
       items.length === input.take ? items[items.length - 1].id : null;
 
-    return { items, nextCursor };
+    return {
+      items: items.map((item, index) => ({
+        ...item,
+        hostTeam: {
+          ...item.hostTeam,
+          sport: normalizeTeamSportOrThrow(
+            item.hostTeam.sport,
+            `items[${index}].hostTeam.sport`,
+          ),
+        },
+      })),
+      nextCursor,
+    };
   }
 
   async get(id: number) {
@@ -103,6 +123,7 @@ export class MatchPostsService {
               select: {
                 id: true,
                 name: true,
+                sport: true,
                 region: true,
               },
             },
@@ -112,7 +133,25 @@ export class MatchPostsService {
     });
 
     if (!post) throw new NotFoundException('match post not found');
-    return post;
+    return {
+      ...post,
+      hostTeam: {
+        ...post.hostTeam,
+        sport: normalizeTeamSportOrThrow(post.hostTeam.sport, 'hostTeam.sport'),
+      },
+      challenges: post.challenges.map((challenge, index) => ({
+        ...challenge,
+        challengerTeam: challenge.challengerTeam
+          ? {
+              ...challenge.challengerTeam,
+              sport: normalizeTeamSportOrThrow(
+                challenge.challengerTeam.sport,
+                `challenges[${index}].challengerTeam.sport`,
+              ),
+            }
+          : undefined,
+      })),
+    };
   }
 
   async createChallenge(matchPostId: number, dto: CreateMatchChallengeDto) {

@@ -12,6 +12,7 @@ import { TeamSport } from '@prisma/client';
 import { ApiQuery, ApiTags } from '@nestjs/swagger';
 import { CreateTeamDto } from './dto/create-team.dto';
 import { TeamsService } from './teams.service';
+import { normalizeOptionalTeamSportOrThrow } from './team-sport.util';
 
 @ApiTags('teams')
 @Controller('teams')
@@ -24,12 +25,10 @@ export class TeamsController {
   }
 
   @Get()
-  @ApiQuery({ name: 'region', required: false, example: 'Seoul' })
   @ApiQuery({ name: 'sport', required: false, enum: TeamSport })
   @ApiQuery({ name: 'take', required: false, example: 50 })
   @ApiQuery({ name: 'cursor', required: false, example: 10 })
   list(
-    @Query('region') region?: string,
     @Query('sport') sport?: string,
     @Query('take') take?: string,
     @Query('cursor') cursor?: string,
@@ -52,23 +51,13 @@ export class TeamsController {
       throw new BadRequestException('cursor must be a positive integer');
     }
 
-    const normalizedSport = sport?.trim().toUpperCase();
-    if (
-      normalizedSport !== undefined &&
-      normalizedSport !== '' &&
-      !Object.values(TeamSport).includes(normalizedSport as TeamSport)
-    ) {
-      throw new BadRequestException(
-        `sport must be one of ${Object.values(TeamSport).join(', ')}`,
-      );
-    }
+    const normalizedSport = normalizeOptionalTeamSportOrThrow(
+      sport,
+      'query.sport',
+    );
 
     return this.teamsService.list({
-      region: region?.trim() || undefined,
-      sport:
-        normalizedSport && normalizedSport !== ''
-          ? (normalizedSport as TeamSport)
-          : undefined,
+      sport: normalizedSport,
       take: takeNum,
       cursor: cursorNum,
     });
